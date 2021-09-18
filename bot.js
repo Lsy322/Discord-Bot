@@ -164,4 +164,4 @@ function removeQueue(message, serverQueue) {
 }
 
 client.login(process.env.BOT_TOKEN);
-.listen(process.env.PORT || 5000)
+
