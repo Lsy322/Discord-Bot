@@ -1,5 +1,4 @@
 const Discord = require("discord.js");
-const { prefix, token } = require("./config.json");
 const ytdl = require("ytdl-core");
 
 const client = new Discord.Client();
@@ -24,19 +23,19 @@ client.on("message", async message => {
 
   const serverQueue = queue.get(message.guild.id);
 
-  if (message.content.startsWith(`${prefix}play`)) {
+  if (message.content.startsWith(`!play`)) {
     execute(message, serverQueue);
     return;
-  } else if (message.content.startsWith(`${prefix}skip`)) {
+  } else if (message.content.startsWith(`!skip`)) {
     skip(message, serverQueue);
     return;
-  } else if (message.content.startsWith(`${prefix}stop`)) {
+  } else if (message.content.startsWith(`!stop`)) {
     stop(message, serverQueue);
     return;
-  } else if (message.content.startsWith(`${prefix}queue`)) {
+  } else if (message.content.startsWith(`!queue`)) {
     checkQueue(message, serverQueue);
     return;
-  } else if (message.content.startsWith(`${prefix}rq`)) {
+  } else if (message.content.startsWith(`!rq`)) {
     removeQueue(message, serverQueue);
     return;
   } else {
@@ -161,4 +160,4 @@ function removeQueue(message, serverQueue) {
     serverQueue.textChannel.send(`Song with index ${key[1]} have been removed from the queue`);
 }
 
-client.login(token);
+client.login(process.env.BOT_TOKEN);
