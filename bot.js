@@ -1,11 +1,12 @@
+
 const Discord = require("discord.js");
 const ytdl = require("ytdl-core");
+require("dotenv").config()
 
+const prefix = "!"
 const client = new Discord.Client();
 
 const queue = new Map();
-
-const prefix = "!"
 
 client.once("ready", () => {
   console.log("Ready!");
