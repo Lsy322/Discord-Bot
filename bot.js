@@ -1,12 +1,16 @@
 
 const Discord = require("discord.js");
+const { Application } = require("opusscript");
 const ytdl = require("ytdl-core");
+const yts = require("yt-search")
 require("dotenv").config()
 
 const prefix = "!"
 const client = new Discord.Client();
 
 const queue = new Map();
+
+var listplayVal = 3
 
 client.once("ready", () => {
   console.log("Ready!");
@@ -26,28 +30,49 @@ client.on("message", async message => {
 
   const serverQueue = queue.get(message.guild.id);
 
-  if (message.content.startsWith(`!play`)) {
-    execute(message, serverQueue);
+  if (message.content.startsWith(`${prefix}play`)) {
+    execute(message, serverQueue, 0);
     return;
-  } else if (message.content.startsWith(`!skip`)) {
+  } else if (message.content.startsWith(`${prefix}skip`)) {
     skip(message, serverQueue);
     return;
-  } else if (message.content.startsWith(`!stop`)) {
+  } else if (message.content.startsWith(`${prefix}stop`)) {
     stop(message, serverQueue);
     return;
-  } else if (message.content.startsWith(`!queue`)) {
+  } else if (message.content.startsWith(`${prefix}queue`)) {
     checkQueue(message, serverQueue);
     return;
-  } else if (message.content.startsWith(`!rq`)) {
+  } else if (message.content.startsWith(`${prefix}rq`)) {
     removeQueue(message, serverQueue);
+    return;
+  } else if (message.content.startsWith(`${prefix}listplay`)) {
+    listplay(message, serverQueue, 0);
+    return;
+  } else if (message.content.startsWith(`${prefix}top`)) {
+    nextQueue(message, serverQueue)
+    return;
+  } else if (message.content.startsWith(`${prefix}setLV`)) {
+    setListplayValue(message)
     return;
   } else {
     message.channel.send("You need to enter a valid command!");
   }
 });
 
-async function execute(message, serverQueue) {
+function setListplayValue(message){
   const args = message.content.split(" ");
+  listplayVal = parseInt(args[1]);
+  message.channel.send(`Amount of Listplay Songs is set to ${listplayVal}`);
+}
+
+async function listplay(message, sQ, index){
+  for (let index = 0; index < listplayVal; index++) {
+    const serverQueue = queue.get(message.guild.id);
+    await execute(message,serverQueue, index)
+  }
+}
+
+async function execute(message, serverQueue, index) {
 
   const voiceChannel = message.member.voice.channel;
   if (!voiceChannel)
@@ -61,10 +86,17 @@ async function execute(message, serverQueue) {
     );
   }
 
-  const songInfo = await ytdl.getInfo(args[1]);
+  const args = message.content.split(" ");
+  var searchkey = ""
+  for (let index = 1; index < args.length; index++) {
+    searchkey += args[index] 
+  }
+  const result = await yts.search(searchkey)
+  const video = result.videos[index]
+
   const song = {
-        title: songInfo.videoDetails.title,
-        url: songInfo.videoDetails.video_url,
+        title: video.title,
+        url: video.url,
    };
 
   if (!serverQueue) {
@@ -96,6 +128,7 @@ async function execute(message, serverQueue) {
   }
 }
 
+
 function skip(message, serverQueue) {
   if (!message.member.voice.channel)
     return message.channel.send(
@@ -122,7 +155,7 @@ function stop(message, serverQueue) {
 function play(guild, song) {
   const serverQueue = queue.get(guild.id);
   if (!song) {
-    serverQueue.voiceChannel.leave();
+    //serverQueue.voiceChannel.leave();
     queue.delete(guild.id);
     return;
   }
@@ -133,7 +166,10 @@ function play(guild, song) {
       serverQueue.songs.shift();
       play(guild, serverQueue.songs[0]);
     })
-    .on("error", error => console.error(error));
+    .on("error", error => {
+      console.error(error)
+      serverQueue.songs = []
+    });
   dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
   serverQueue.textChannel.send(`Start playing: **${song.title}**`);
 }
@@ -152,16 +188,24 @@ function removeQueue(message, serverQueue) {
     const key = message.content.split(" ");
     if (!serverQueue)
     return message.channel.send("There is no such index in the queue");
-    if (key[1] == serverQueue.songs.length - 1) serverQueue.songs.pop();
+    if (parseInt(key[1]) == serverQueue.songs.length - 1) serverQueue.songs.pop();
     else {
-        for (let index = key[1]; index < serverQueue.songs.length - 1; index++) {
-            serverQueue.songs[index] = serverQueue.songs[index + 1];
+        for (var index = parseInt(key[1]); index < serverQueue.songs.length - 1; index++) {
+          serverQueue.songs[index] = serverQueue.songs[index + 1];
         }
-        serverQueue.songs.pop();
-        console.log(serverQueue.songs);
+        serverQueue.songs.pop()
     }
-    serverQueue.textChannel.send(`Song with index ${key[1]} have been removed from the queue`);
+    serverQueue.textChannel.send(`**${target.title}** have been removed from the queue`);
+}
+
+function nextQueue(message, serverQueue) {
+  const key = parseInt(message.content.split(" ")[1]);
+  var target = serverQueue.songs[key]
+  for (let index = key; index > 1; index--) {
+    serverQueue.songs[index] = serverQueue.songs[index - 1]
+  }
+  serverQueue.songs[1] = target
+  serverQueue.textChannel.send(`**${target.title}** have been moved to the top of the queue`);
 }
 
 client.login(process.env.BOT_TOKEN);
-
