@@ -73,7 +73,7 @@ async function listplay(message, sQ, index){
       await execute(message,serverQueue, index)
     } catch (error) {
       console.log(error)
-    }
+    } 
   }
 }
 
@@ -97,7 +97,6 @@ async function execute(message, serverQueue, index) {
     searchkey += args[index] 
   }
 
-  try {
     const result = await yts.search(searchkey)
     const video = result.videos[index]
 
@@ -105,9 +104,6 @@ async function execute(message, serverQueue, index) {
         title: video.title,
         url: video.url,
     };
-  } catch (error) {
-    console.log(error)
-  }
   
 
   if (!serverQueue) {
