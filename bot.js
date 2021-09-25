@@ -2,7 +2,8 @@
 const Discord = require("discord.js");
 const { Application } = require("opusscript");
 const ytdl = require("ytdl-core");
-const yts = require("yt-search")
+const yts = require("yt-search");
+const { MongoClient } = require('mongodb');
 require("dotenv").config()
 
 const prefix = "!"
@@ -67,8 +68,12 @@ function setListplayValue(message){
 
 async function listplay(message, sQ, index){
   for (let index = 0; index < listplayVal; index++) {
-    const serverQueue = queue.get(message.guild.id);
-    await execute(message,serverQueue, index)
+    try {
+      const serverQueue = queue.get(message.guild.id);
+      await execute(message,serverQueue, index)
+    } catch (error) {
+      console.log(error)
+    }
   }
 }
 
@@ -91,13 +96,19 @@ async function execute(message, serverQueue, index) {
   for (let index = 1; index < args.length; index++) {
     searchkey += args[index] 
   }
-  const result = await yts.search(searchkey)
-  const video = result.videos[index]
 
-  const song = {
+  try {
+    const result = await yts.search(searchkey)
+    const video = result.videos[index]
+
+    const song = {
         title: video.title,
         url: video.url,
-   };
+    };
+  } catch (error) {
+    console.log(error)
+  }
+  
 
   if (!serverQueue) {
     const queueContruct = {
@@ -155,7 +166,7 @@ function stop(message, serverQueue) {
 function play(guild, song) {
   const serverQueue = queue.get(guild.id);
   if (!song) {
-    //serverQueue.voiceChannel.leave();
+    serverQueue.voiceChannel.leave();
     queue.delete(guild.id);
     return;
   }
@@ -168,7 +179,6 @@ function play(guild, song) {
     })
     .on("error", error => {
       console.error(error)
-      serverQueue.songs = []
     });
   dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
   serverQueue.textChannel.send(`Start playing: **${song.title}**`);

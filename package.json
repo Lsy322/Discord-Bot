@@ -10,6 +10,7 @@
     "ffmpeg": "^0.0.4",
     "ffmpeg-static": "^4.4.0",
     "fluent-ffmpeg": "^2.1.2",
+    "mongodb": "^4.1.2",
     "opusscript": "0.0.8",
     "yt-search": "^2.10.1",
     "ytdl-core": "^4.9.1"
