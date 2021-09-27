@@ -6,7 +6,7 @@ const yts = require("yt-search");
 const { MongoClient } = require('mongodb');
 require("dotenv").config()
 
-const prefix = "!"
+const prefix = "."
 const client = new Discord.Client();
 
 const queue = new Map();
@@ -93,9 +93,13 @@ async function execute(message, serverQueue, index) {
 
   const args = message.content.split(" ");
   var searchkey = ""
+  
   for (let index = 1; index < args.length; index++) {
     searchkey += args[index] 
   }
+  const refined_args = searchkey.split("&")
+  searchkey = refined_args[0]
+  console.log(searchkey)
 
     const result = await yts.search(searchkey)
     const video = result.videos[index]
