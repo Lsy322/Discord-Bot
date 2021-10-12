@@ -171,6 +171,7 @@ function play(guild, song) {
     .play(ytdl(song.url,{filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1<<25 }, {highWaterMark: 1}))
     .on("finish", () => {
       serverQueue.songs.shift();
+      console.log(serverQueue.songs[0])
       play(guild, serverQueue.songs[0]);
     })
     .on("error", error => {
