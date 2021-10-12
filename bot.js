@@ -6,7 +6,7 @@ const yts = require("yt-search");
 const { MongoClient } = require('mongodb');
 require("dotenv").config()
 
-const prefix = "!"
+const prefix = "."
 const client = new Discord.Client();
 var retryFlag = false;
 var retryCount = 0;
@@ -103,7 +103,7 @@ async function execute(message, serverQueue, index) {
   console.log(searchkey)
   
     const result = await yts.search(searchkey)
-    const video = result.all[index]
+    const video = result.videos[index]
 
     const song = {
         title: video.title,
@@ -186,7 +186,7 @@ function play(guild, song) {
         console.error(error)
         console.log("\nRETRYING :\n")
         retryCount++;
-        setTimeout(play(guild, serverQueue.songs[0]),1000)
+        play(guild, serverQueue.songs[0])
       }else{
         console.log("\n Reaches Maximum of Retry \n")
         serverQueue.textChannel.send(`Error occur...Please Play Again`);
