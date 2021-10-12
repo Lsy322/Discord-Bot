@@ -97,6 +97,10 @@ async function execute(message, serverQueue, index) {
     searchkey += ' ' + args[index] 
   }
 
+  const args2 = searchkey.split('&')
+  searchkey = args2[0]
+  console.log(searchkey)
+  
     const result = await yts.search(searchkey)
     const video = result.all[index]
 
