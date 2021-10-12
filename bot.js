@@ -148,6 +148,7 @@ function skip(message, serverQueue) {
     );
   if (!serverQueue)
     return message.channel.send("There is no song that I could skip!");
+  retryCount = 0;
   serverQueue.connection.dispatcher.end();
 }
 
