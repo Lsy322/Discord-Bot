@@ -186,15 +186,16 @@ function play(guild, song) {
         console.error(error)
         console.log("\nRETRYING :\n")
         retryCount++;
-        play(guild, serverQueue.songs[0])
+        setTimeout(play,1000,guild, serverQueue.songs[0])
       }else{
         console.log("\n Reaches Maximum of Retry \n")
         serverQueue.textChannel.send(`Error occur...Please Play Again`);
-        serverQueue.songs = [];
+        serverQueue.voiceChannel.leave();
+        queue.delete(guild.id);
         retryCount = 0;
       }
     })
-  if (!retryFlag){
+  if (retryCount < 1){
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
     serverQueue.textChannel.send(`Start playing: **${song.title}**`);
   }
