@@ -6,7 +6,7 @@ const yts = require("yt-search");
 const { MongoClient } = require('mongodb');
 require("dotenv").config()
 
-const prefix = "."
+const prefix = "!"
 const client = new Discord.Client();
 var retryFlag = false;
 var retryCount = 0;
@@ -191,7 +191,6 @@ function play(guild, song) {
         console.log("\n Reaches Maximum of Retry \n")
         serverQueue.textChannel.send(`Error occur...Please Play Again`);
         serverQueue.songs = [];
-        serverQueue.connection.dispatcher.end();
         retryCount = 0;
       }
     })
