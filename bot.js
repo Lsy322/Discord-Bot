@@ -8,6 +8,8 @@ require("dotenv").config()
 
 const prefix = "!"
 const client = new Discord.Client();
+const retryFlag = false;
+const retryCount = 0;
 
 const queue = new Map();
 
@@ -96,7 +98,6 @@ async function execute(message, serverQueue, index) {
   for (let index = 2; index < args.length; index++) {
     searchkey += ' ' + args[index] 
   }
-
   const args2 = searchkey.split('&')
   searchkey = args2[0]
   console.log(searchkey)
@@ -164,6 +165,7 @@ function stop(message, serverQueue) {
 }
 
 function play(guild, song) {
+  retryFlag = false;
   const serverQueue = queue.get(guild.id);
   if (!song) {
     serverQueue.voiceChannel.leave();
@@ -179,13 +181,24 @@ function play(guild, song) {
       play(guild, serverQueue.songs[0]);
     })
     .on("error", error => {
-      console.error(error)
-      console.log("\nRETRYING :\n")
-      play(guild, serverQueue.songs[0]);
-      return;
-    });
-  dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-  serverQueue.textChannel.send(`Start playing: **${song.title}**`);
+      retryFlag = true;
+      if(retryCount < 15){
+        console.error(error)
+        console.log("\nRETRYING :\n")
+        retryCount++;
+        setTimeout(play(guild, serverQueue.songs[0]),1000)
+      }else{
+        console.log("\n Reaches Maximum of Retry \n")
+        serverQueue.textChannel.send(`Error occur...Please Play Again`);
+        serverQueue.songs = [];
+        serverQueue.connection.dispatcher.end();
+        retryCount = 0;
+      }
+    })
+  if (!retryFlag){
+    dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+    serverQueue.textChannel.send(`Start playing: **${song.title}**`);
+  }
 }
 
 function checkQueue(message, serverQueue) {
