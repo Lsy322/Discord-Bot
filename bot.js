@@ -6,7 +6,7 @@ const yts = require("yt-search");
 const { MongoClient } = require('mongodb');
 require("dotenv").config()
 
-const prefix = "."
+const prefix = "!"
 const client = new Discord.Client();
 
 const queue = new Map();
