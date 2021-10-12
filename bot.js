@@ -8,8 +8,8 @@ require("dotenv").config()
 
 const prefix = "!"
 const client = new Discord.Client();
-const retryFlag = false;
-const retryCount = 0;
+var retryFlag = false;
+var retryCount = 0;
 
 const queue = new Map();
 
