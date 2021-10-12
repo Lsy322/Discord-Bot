@@ -6,7 +6,7 @@ const yts = require("yt-search");
 const { MongoClient } = require('mongodb');
 require("dotenv").config()
 
-const prefix = "!"
+const prefix = "."
 const client = new Discord.Client();
 
 const queue = new Map();
@@ -92,17 +92,13 @@ async function execute(message, serverQueue, index) {
   }
 
   const args = message.content.split(" ");
-  var searchkey = ""
-  
-  for (let index = 1; index < args.length; index++) {
-    searchkey += args[index] 
+  var searchkey = args[1]
+  for (let index = 2; index < args.length; index++) {
+    searchkey += ' ' + args[index] 
   }
-  const refined_args = searchkey.split("&")
-  searchkey = refined_args[0]
-  console.log(searchkey)
 
     const result = await yts.search(searchkey)
-    const video = result.videos[index]
+    const video = result.all[index]
 
     const song = {
         title: video.title,
@@ -172,7 +168,7 @@ function play(guild, song) {
   }
 
   const dispatcher = serverQueue.connection
-    .play(ytdl(song.url))
+    .play(ytdl(song.url,{filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1<<25 }, {highWaterMark: 1}))
     .on("finish", () => {
       serverQueue.songs.shift();
       play(guild, serverQueue.songs[0]);
