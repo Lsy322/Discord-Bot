@@ -178,6 +178,7 @@ function play(guild, song) {
       console.error(error)
       console.log("\nRETRYING :\n")
       play(guild, serverQueue.songs[0]);
+      return;
     });
   dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
   serverQueue.textChannel.send(`Start playing: **${song.title}**`);
