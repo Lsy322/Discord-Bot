@@ -148,6 +148,7 @@ function skip(message, serverQueue) {
     );
   if (!serverQueue)
     return message.channel.send("There is no song that I could skip!");
+  retryCount = 0;
   serverQueue.connection.dispatcher.end();
 }
 
@@ -169,11 +170,12 @@ function play(guild, song) {
   const serverQueue = queue.get(guild.id);
   if (!song) {
     serverQueue.voiceChannel.leave();
+    queue.delete(guild.id);
     return;
   }
 
   const dispatcher = serverQueue.connection
-    .play(ytdl(song.url,{filter: 'audioonly', quality: 'highestaudio'}))
+    .play(ytdl(song.url,{filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 }))
     .on("finish", () => {
       serverQueue.songs.shift();
       console.log(serverQueue.songs[0])
@@ -190,6 +192,7 @@ function play(guild, song) {
         console.log("\n Reaches Maximum of Retry \n")
         serverQueue.textChannel.send(`Error occur...Please Play Again`);
         serverQueue.voiceChannel.leave();
+        queue.delete(guild.id);
         retryCount = 0;
       }
     })
