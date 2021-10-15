@@ -189,7 +189,6 @@ function play(guild, song) {
       }else{
         console.log("\n Reaches Maximum of Retry \n")
         serverQueue.textChannel.send(`Error occur...Please Play Again`);
-        serverQueue.songs = [];
         serverQueue.voiceChannel.leave();
         retryCount = 0;
       }
