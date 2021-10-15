@@ -6,7 +6,7 @@ const yts = require("yt-search");
 const { MongoClient } = require('mongodb');
 require("dotenv").config()
 
-const prefix = "!"
+const prefix = "."
 const client = new Discord.Client();
 var retryFlag = false;
 var retryCount = 0;
@@ -148,7 +148,6 @@ function skip(message, serverQueue) {
     );
   if (!serverQueue)
     return message.channel.send("There is no song that I could skip!");
-  retryCount = 0;
   serverQueue.connection.dispatcher.end();
 }
 
@@ -170,12 +169,11 @@ function play(guild, song) {
   const serverQueue = queue.get(guild.id);
   if (!song) {
     serverQueue.voiceChannel.leave();
-    queue.delete(guild.id);
     return;
   }
 
   const dispatcher = serverQueue.connection
-    .play(ytdl(song.url,{filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 }))
+    .play(ytdl(song.url,{filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1<<25 }))
     .on("finish", () => {
       serverQueue.songs.shift();
       console.log(serverQueue.songs[0])
@@ -191,8 +189,8 @@ function play(guild, song) {
       }else{
         console.log("\n Reaches Maximum of Retry \n")
         serverQueue.textChannel.send(`Error occur...Please Play Again`);
+        serverQueue.songs = [];
         serverQueue.voiceChannel.leave();
-        queue.delete(guild.id);
         retryCount = 0;
       }
     })
